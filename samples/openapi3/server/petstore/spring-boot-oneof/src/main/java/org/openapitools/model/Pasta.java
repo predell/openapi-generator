@@ -39,6 +39,21 @@ public class Pasta extends Entity {
     super(atType);
   }
 
+  @JsonProperty("href")
+  private String href;
+
+  @JsonProperty("id")
+  private String id;
+
+  @JsonProperty("@schemaLocation")
+  private String atSchemaLocation;
+
+  @JsonProperty("@baseType")
+  private String atBaseType;
+
+  @JsonProperty("@type")
+  private String atType;
+
   public Pasta vendor(String vendor) {
     this.vendor = vendor;
     return this;
@@ -61,29 +76,100 @@ public class Pasta extends Entity {
 
 
   public Pasta href(String href) {
-    super.href(href);
+    this.href = href;
     return this;
+  }
+
+  /**
+   * Hyperlink reference
+   * @return href
+  */
+
+  @Schema(name = "href", description = "Hyperlink reference", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String href() {
+    return href;
+  }
+
+  public void href(String href) {
+    this.href = href;
   }
 
   public Pasta id(String id) {
-    super.id(id);
+    this.id = id;
     return this;
+  }
+
+  /**
+   * unique identifier
+   * @return id
+  */
+
+  @Schema(name = "id", description = "unique identifier", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String id() {
+    return id;
+  }
+
+  public void id(String id) {
+    this.id = id;
   }
 
   public Pasta atSchemaLocation(String atSchemaLocation) {
-    super.atSchemaLocation(atSchemaLocation);
+    this.atSchemaLocation = atSchemaLocation;
     return this;
+  }
+
+  /**
+   * A URI to a JSON-Schema file that defines additional attributes and relationships
+   * @return atSchemaLocation
+  */
+
+  @Schema(name = "@schemaLocation", description = "A URI to a JSON-Schema file that defines additional attributes and relationships", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String atSchemaLocation() {
+    return atSchemaLocation;
+  }
+
+  public void atSchemaLocation(String atSchemaLocation) {
+    this.atSchemaLocation = atSchemaLocation;
   }
 
   public Pasta atBaseType(String atBaseType) {
-    super.atBaseType(atBaseType);
+    this.atBaseType = atBaseType;
     return this;
   }
 
+  /**
+   * When sub-classing, this defines the super-class
+   * @return atBaseType
+  */
+
+  @Schema(name = "@baseType", description = "When sub-classing, this defines the super-class", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String atBaseType() {
+    return atBaseType;
+  }
+
+  public void atBaseType(String atBaseType) {
+    this.atBaseType = atBaseType;
+  }
+
   public Pasta atType(String atType) {
-    super.atType(atType);
+    this.atType = atType;
     return this;
   }
+
+  /**
+   * When sub-classing, this defines the sub-class Extensible name
+   * @return atType
+  */
+  @NotNull
+  @Schema(name = "@type", description = "When sub-classing, this defines the sub-class Extensible name", requiredMode = Schema.RequiredMode.REQUIRED)
+  public String atType() {
+    return atType;
+  }
+
+  public void atType(String atType) {
+    this.atType = atType;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -94,12 +180,17 @@ public class Pasta extends Entity {
     }
     Pasta pasta = (Pasta) o;
     return Objects.equals(this.vendor, pasta.vendor) &&
+        Objects.equals(this.href, pasta.href) &&
+        Objects.equals(this.id, pasta.id) &&
+        Objects.equals(this.atSchemaLocation, pasta.atSchemaLocation) &&
+        Objects.equals(this.atBaseType, pasta.atBaseType) &&
+        Objects.equals(this.atType, pasta.atType) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(vendor, super.hashCode());
+    return Objects.hash(vendor, href, id, atSchemaLocation, atBaseType, atType, super.hashCode());
   }
 
   @Override
@@ -108,6 +199,11 @@ public class Pasta extends Entity {
     sb.append("class Pasta {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    vendor: ").append(toIndentedString(vendor)).append("\n");
+    sb.append("    href: ").append(toIndentedString(href)).append("\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    atSchemaLocation: ").append(toIndentedString(atSchemaLocation)).append("\n");
+    sb.append("    atBaseType: ").append(toIndentedString(atBaseType)).append("\n");
+    sb.append("    atType: ").append(toIndentedString(atType)).append("\n");
     sb.append("}");
     return sb.toString();
   }

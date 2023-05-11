@@ -34,7 +34,7 @@ data class Bird (
     override val id: java.util.UUID,
 
     @Json(name = "featherType")
-    val featherType: kotlin.String
+    override val featherType: kotlin.String
 
-) : Animal
+) : Animal,BirdAllOf
 
