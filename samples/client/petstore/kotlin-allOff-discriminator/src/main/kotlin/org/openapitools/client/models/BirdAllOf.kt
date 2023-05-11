@@ -26,10 +26,9 @@ import com.squareup.moshi.JsonClass
  */
 
 
-data class BirdAllOf (
+interface BirdAllOf {
 
     @Json(name = "featherType")
     val featherType: kotlin.String
-
-)
+}
 

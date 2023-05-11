@@ -31,6 +31,10 @@ type Order struct {
 	Quantity int32 `json:"quantity,omitempty"`
 
 	ShipDate time.Time `json:"shipDate,omitempty"`
+
+	Promotion bool `json:"promotion,omitempty"`
+
+	Type string `json:"type,omitempty"`
 }
 
 // AssertOrderRequired checks if the required fields are not zero-ed

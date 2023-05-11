@@ -52,6 +52,18 @@ public class Bar extends Entity implements BarRefOrValue {
     this.id = id;
   }
 
+  @JsonProperty("href")
+  private String href;
+
+  @JsonProperty("@schemaLocation")
+  private String atSchemaLocation;
+
+  @JsonProperty("@baseType")
+  private String atBaseType;
+
+  @JsonProperty("@type")
+  private String atType;
+
   public Bar id(String id) {
     this.id = id;
     return this;
@@ -133,23 +145,79 @@ public class Bar extends Entity implements BarRefOrValue {
   }
 
   public Bar href(String href) {
-    super.setHref(href);
+    this.href = href;
     return this;
+  }
+
+  /**
+   * Hyperlink reference
+   * @return href
+  */
+  
+  @Schema(name = "href", description = "Hyperlink reference", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String getHref() {
+    return href;
+  }
+
+  public void setHref(String href) {
+    this.href = href;
   }
 
   public Bar atSchemaLocation(String atSchemaLocation) {
-    super.setAtSchemaLocation(atSchemaLocation);
+    this.atSchemaLocation = atSchemaLocation;
     return this;
+  }
+
+  /**
+   * A URI to a JSON-Schema file that defines additional attributes and relationships
+   * @return atSchemaLocation
+  */
+  
+  @Schema(name = "@schemaLocation", description = "A URI to a JSON-Schema file that defines additional attributes and relationships", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String getAtSchemaLocation() {
+    return atSchemaLocation;
+  }
+
+  public void setAtSchemaLocation(String atSchemaLocation) {
+    this.atSchemaLocation = atSchemaLocation;
   }
 
   public Bar atBaseType(String atBaseType) {
-    super.setAtBaseType(atBaseType);
+    this.atBaseType = atBaseType;
     return this;
   }
 
+  /**
+   * When sub-classing, this defines the super-class
+   * @return atBaseType
+  */
+  
+  @Schema(name = "@baseType", description = "When sub-classing, this defines the super-class", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String getAtBaseType() {
+    return atBaseType;
+  }
+
+  public void setAtBaseType(String atBaseType) {
+    this.atBaseType = atBaseType;
+  }
+
   public Bar atType(String atType) {
-    super.setAtType(atType);
+    this.atType = atType;
     return this;
+  }
+
+  /**
+   * When sub-classing, this defines the sub-class Extensible name
+   * @return atType
+  */
+  @NotNull 
+  @Schema(name = "@type", description = "When sub-classing, this defines the sub-class Extensible name", requiredMode = Schema.RequiredMode.REQUIRED)
+  public String getAtType() {
+    return atType;
+  }
+
+  public void setAtType(String atType) {
+    this.atType = atType;
   }
 
   @Override
@@ -165,12 +233,16 @@ public class Bar extends Entity implements BarRefOrValue {
         Objects.equals(this.barPropA, bar.barPropA) &&
         Objects.equals(this.fooPropB, bar.fooPropB) &&
         Objects.equals(this.foo, bar.foo) &&
+        Objects.equals(this.href, bar.href) &&
+        Objects.equals(this.atSchemaLocation, bar.atSchemaLocation) &&
+        Objects.equals(this.atBaseType, bar.atBaseType) &&
+        Objects.equals(this.atType, bar.atType) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(id, barPropA, fooPropB, foo, super.hashCode());
+    return Objects.hash(id, barPropA, fooPropB, foo, href, atSchemaLocation, atBaseType, atType, super.hashCode());
   }
 
   @Override
@@ -182,6 +254,10 @@ public class Bar extends Entity implements BarRefOrValue {
     sb.append("    barPropA: ").append(toIndentedString(barPropA)).append("\n");
     sb.append("    fooPropB: ").append(toIndentedString(fooPropB)).append("\n");
     sb.append("    foo: ").append(toIndentedString(foo)).append("\n");
+    sb.append("    href: ").append(toIndentedString(href)).append("\n");
+    sb.append("    atSchemaLocation: ").append(toIndentedString(atSchemaLocation)).append("\n");
+    sb.append("    atBaseType: ").append(toIndentedString(atBaseType)).append("\n");
+    sb.append("    atType: ").append(toIndentedString(atType)).append("\n");
     sb.append("}");
     return sb.toString();
   }

@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -407,10 +408,40 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
         return outputFolder + File.separator + sourceFolder + File.separator + modelPackage().replace('.', File.separatorChar);
     }
 
+    private enum KotlinModelType {
+        INTERFACE("interface", "x-kotlin-interface"), OPEN_CLASS("open class", "x-kotlin-open-class"), DATA_CLASS(
+                "data class", "x-kotlin-data-class");
+
+        final String literal;
+        final String flag;
+
+        KotlinModelType(String literal, String flag) {
+            this.literal = literal;
+            this.flag = flag;
+        }
+    }
+
+    private enum CombinationType {
+        ALL_OF(it -> it.allOf), ONE_OF(it -> it.oneOf);
+        final Function<CodegenModel, Set<String>> modelNamesFunc;
+
+        CombinationType(Function<CodegenModel, Set<String>> modelNamesFunc) {
+            this.modelNamesFunc = modelNamesFunc;
+        }
+    }
+
+    private List<CodegenModel> getModels(CodegenModel cm, CombinationType ct) {
+        List<CodegenModel> interfaceModels = cm.getInterfaceModels();
+        Set<String> names = ct.modelNamesFunc.apply(cm);
+        if (names == null || interfaceModels == null) {
+            return Collections.emptyList();
+        }
+        return interfaceModels.stream().filter(it -> names.contains(it.classname)).collect(Collectors.toList());
+    }
+
     @Override
     public Map<String, ModelsMap> postProcessAllModels(Map<String, ModelsMap> objs) {
         objs = super.postProcessAllModels(objs);
-        objs = super.updateAllModels(objs);
 
         if (!additionalModelTypeAnnotations.isEmpty()) {
             for (String modelName : objs.keySet()) {
@@ -419,26 +450,118 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
             }
         }
 
+        final BiConsumer<CodegenModel, CodegenModel> markAsExtends = (childModel, superModel) -> {
+            ((Map<CodegenModel, CodegenModel>) childModel.vendorExtensions.computeIfAbsent("x-implements",
+                    (k) -> new IdentityHashMap<>())).put(superModel, superModel);
+            superModel.vendorExtensions.put("x-has-implementors", Boolean.TRUE);
+        };
+
+        for (ModelsMap map : objs.values()) {
+            for (ModelMap mo : map.getModels()) {
+                CodegenModel codegenModel = mo.getModel();
+                for (CodegenModel referencedModel : getModels(codegenModel, CombinationType.ALL_OF)) {
+                    if (!referencedModel.name.equals(codegenModel.parent)) {
+                        markAsExtends.accept(codegenModel, referencedModel);
+                    }
+                }
+                for (CodegenModel interfaceModel : getModels(codegenModel, CombinationType.ONE_OF)) {
+                    markAsExtends.accept(interfaceModel, codegenModel);
+                }
+            }
+        }
+
+        for (ModelsMap map : objs.values()) {
+            for (ModelMap mo : map.getModels()) {
+                CodegenModel cm = mo.getModel();
+
+                KotlinModelType kotlinType;
+                if (cm.getDiscriminator() != null || cm.vendorExtensions.get("x-has-implementors") == Boolean.TRUE) {
+                    kotlinType = KotlinModelType.INTERFACE;
+                } else if (cm.hasChildren) {
+                    kotlinType = KotlinModelType.OPEN_CLASS;
+                } else {
+                    kotlinType = KotlinModelType.DATA_CLASS;
+                }
+                cm.vendorExtensions.put("x-kotlin-model-type", kotlinType.literal);
+                cm.vendorExtensions.put(kotlinType.flag, true);
+                cm.vendorExtensions.put("x-parent-kotlin-interface",
+                        cm.parentModel != null && (cm.parentModel.getDiscriminator() != null || cm.vendorExtensions.get("x-has-implementors") == Boolean.TRUE));
+
+                if (kotlinType != KotlinModelType.DATA_CLASS || isSerializableModel() || cm.vars.stream().anyMatch(var -> var.isEnum)) {
+                    cm.vendorExtensions.put("x-has-data-class-body", true);
+                }
+
+                final Map<CodegenModel, CodegenModel> xImplements =
+                        (Map<CodegenModel, CodegenModel>) cm.vendorExtensions.getOrDefault("x-implements",
+                                Collections.emptyMap());
+                if (!xImplements.isEmpty()) {
+                    cm.vendorExtensions.put("x-kotlin-interfaces-list",
+                            xImplements.keySet().stream().filter(im -> im != cm.parentModel).map(CodegenModel::getClassname).sorted().collect(Collectors.joining(", ")));
+                }
+            }
+        }
+
+        // we need to add variables from parent to current model if current is data class
+        for (ModelsMap map : objs.values()) {
+            for (ModelMap mo : map.getModels()) {
+                final CodegenModel cm = mo.getModel();
+                final CodegenModel parentModel = cm.getParentModel();
+                final boolean selfIsInterface = Objects.equals(cm.getVendorExtensions().get("x-kotlin-model-type"),
+                        KotlinModelType.INTERFACE.literal);
+
+                if (!selfIsInterface && parentModel != null) {
+                    // TODO: handle other interfaces as well, not only parent? need test case
+                    Set<String> alreadyDefined =
+                            cm.getAllVars().stream().map(CodegenProperty::getName).collect(Collectors.toSet());
+                    for (CodegenProperty prop : parentModel.getVars()) {
+                        if (!alreadyDefined.contains(prop.name)) {
+                            cm.allVars.add(prop.clone());
+                            alreadyDefined.add(prop.name);
+                        }
+                    }
+                }
+            }
+        }
+
+        // mark all override variables as such
+        for (ModelsMap map : objs.values()) {
+            for (ModelMap mo : map.getModels()) {
+                CodegenModel cm = mo.getModel();
+                Set<String> inheritedPropertyNames = new TreeSet<>();
+
+                Collection<CodegenModel> interfaceModels =
+                        ((Map<CodegenModel, CodegenModel>) cm.getVendorExtensions().getOrDefault("x-implements",
+                                Collections.emptyMap())).values();
+                for (CodegenModel interfaceModel : interfaceModels) {
+                    interfaceModel.vars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
+                    interfaceModel.allVars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
+                }
+
+                final CodegenModel parentModel = cm.getParentModel();
+                if (parentModel != null) {
+                    parentModel.vars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
+                    parentModel.allVars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
+                }
+
+                for (CodegenProperty prop : cm.vars) {
+                    if (inheritedPropertyNames.contains(prop.name)) {
+                        prop.vendorExtensions.put("x-kotlin-override", Boolean.TRUE);
+                    }
+                }
+                for (CodegenProperty prop : cm.allVars) {
+                    if (inheritedPropertyNames.contains(prop.name)) {
+                        prop.vendorExtensions.put("x-kotlin-override", Boolean.TRUE);
+                    }
+                }
+            }
+        }
+
         return objs;
     }
 
     @Override
     public ModelsMap postProcessModels(ModelsMap objs) {
-        objs = super.postProcessModelsEnum(objs);
-        for (ModelMap mo : objs.getModels()) {
-            CodegenModel cm = mo.getModel();
-            if (cm.getDiscriminator() != null) {
-                cm.vendorExtensions.put("x-has-data-class-body", true);
-                break;
-            }
-
-            for (CodegenProperty var : cm.vars) {
-                if (var.isEnum || isSerializableModel()) {
-                    cm.vendorExtensions.put("x-has-data-class-body", true);
-                    break;
-                }
-            }
-        }
+        objs = super.postProcessModels(objs);
         return postProcessModelsEnum(objs);
     }
 
@@ -888,29 +1011,6 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
         return !type.startsWith("kotlin.") && !type.startsWith("java.") &&
                 !defaultIncludes.contains(type) && !languageSpecificPrimitives.contains(type) &&
                 !type.contains(".");
-    }
-
-    @Override
-    public CodegenModel fromModel(String name, Schema schema) {
-        CodegenModel m = super.fromModel(name, schema);
-        m.optionalVars = m.optionalVars.stream().distinct().collect(Collectors.toList());
-        // Update allVars/requiredVars/optionalVars with isInherited
-        // Each of these lists contains elements that are similar, but they are all cloned
-        // via CodegenModel.removeAllDuplicatedProperty and therefore need to be updated
-        // separately.
-        // First find only the parent vars via baseName matching
-        Map<String, CodegenProperty> allVarsMap = m.allVars.stream()
-                .collect(Collectors.toMap(CodegenProperty::getBaseName, Function.identity()));
-        allVarsMap.keySet()
-                .removeAll(m.vars.stream().map(CodegenProperty::getBaseName).collect(Collectors.toSet()));
-        // Update the allVars
-        allVarsMap.values().forEach(p -> p.isInherited = true);
-        // Update any other vars (requiredVars, optionalVars)
-        Stream.of(m.requiredVars, m.optionalVars)
-                .flatMap(List::stream)
-                .filter(p -> allVarsMap.containsKey(p.baseName))
-                .forEach(p -> p.isInherited = true);
-        return m;
     }
 
     @Override

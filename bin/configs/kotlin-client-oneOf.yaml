@@ -1,0 +1,9 @@
+generatorName: kotlin
+outputDir: samples/client/petstore/kotlin-client-oneOf
+inputSpec: modules/openapi-generator/src/test/resources/3_0/oneof_polymorphism_and_inheritance.yaml
+templateDir: modules/openapi-generator/src/main/resources/kotlin-client
+additionalProperties:
+  artifactId: kotlin-client-oneOf
+  library: jvm-ktor
+  serializationLibrary: jackson
+  sortParamsByRequiredFlag: false

@@ -45,6 +45,21 @@ public class PizzaSpeziale extends Pizza {
     super(atType);
   }
 
+  @JsonProperty("href")
+  private String href;
+
+  @JsonProperty("id")
+  private String id;
+
+  @JsonProperty("@schemaLocation")
+  private String atSchemaLocation;
+
+  @JsonProperty("@baseType")
+  private String atBaseType;
+
+  @JsonProperty("@type")
+  private String atType;
+
   public PizzaSpeziale toppings(String toppings) {
     this.toppings = toppings;
     return this;
@@ -65,33 +80,103 @@ public class PizzaSpeziale extends Pizza {
     this.toppings = toppings;
   }
 
-  public PizzaSpeziale pizzaSize(BigDecimal pizzaSize) {
-    super.setPizzaSize(pizzaSize);
+  public PizzaSpeziale href(String href) {
+    this.href = href;
     return this;
   }
 
-  public PizzaSpeziale href(String href) {
-    super.setHref(href);
-    return this;
+  /**
+   * Hyperlink reference
+   * @return href
+  */
+  
+  @Schema(name = "href", description = "Hyperlink reference", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String getHref() {
+    return href;
+  }
+
+  public void setHref(String href) {
+    this.href = href;
   }
 
   public PizzaSpeziale id(String id) {
-    super.setId(id);
+    this.id = id;
     return this;
+  }
+
+  /**
+   * unique identifier
+   * @return id
+  */
+  
+  @Schema(name = "id", description = "unique identifier", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
   }
 
   public PizzaSpeziale atSchemaLocation(String atSchemaLocation) {
-    super.setAtSchemaLocation(atSchemaLocation);
+    this.atSchemaLocation = atSchemaLocation;
     return this;
+  }
+
+  /**
+   * A URI to a JSON-Schema file that defines additional attributes and relationships
+   * @return atSchemaLocation
+  */
+  
+  @Schema(name = "@schemaLocation", description = "A URI to a JSON-Schema file that defines additional attributes and relationships", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String getAtSchemaLocation() {
+    return atSchemaLocation;
+  }
+
+  public void setAtSchemaLocation(String atSchemaLocation) {
+    this.atSchemaLocation = atSchemaLocation;
   }
 
   public PizzaSpeziale atBaseType(String atBaseType) {
-    super.setAtBaseType(atBaseType);
+    this.atBaseType = atBaseType;
     return this;
   }
 
+  /**
+   * When sub-classing, this defines the super-class
+   * @return atBaseType
+  */
+  
+  @Schema(name = "@baseType", description = "When sub-classing, this defines the super-class", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+  public String getAtBaseType() {
+    return atBaseType;
+  }
+
+  public void setAtBaseType(String atBaseType) {
+    this.atBaseType = atBaseType;
+  }
+
   public PizzaSpeziale atType(String atType) {
-    super.setAtType(atType);
+    this.atType = atType;
+    return this;
+  }
+
+  /**
+   * When sub-classing, this defines the sub-class Extensible name
+   * @return atType
+  */
+  @NotNull 
+  @Schema(name = "@type", description = "When sub-classing, this defines the sub-class Extensible name", requiredMode = Schema.RequiredMode.REQUIRED)
+  public String getAtType() {
+    return atType;
+  }
+
+  public void setAtType(String atType) {
+    this.atType = atType;
+  }
+
+  public PizzaSpeziale pizzaSize(BigDecimal pizzaSize) {
+    super.setPizzaSize(pizzaSize);
     return this;
   }
 
@@ -105,12 +190,17 @@ public class PizzaSpeziale extends Pizza {
     }
     PizzaSpeziale pizzaSpeziale = (PizzaSpeziale) o;
     return Objects.equals(this.toppings, pizzaSpeziale.toppings) &&
+        Objects.equals(this.href, pizzaSpeziale.href) &&
+        Objects.equals(this.id, pizzaSpeziale.id) &&
+        Objects.equals(this.atSchemaLocation, pizzaSpeziale.atSchemaLocation) &&
+        Objects.equals(this.atBaseType, pizzaSpeziale.atBaseType) &&
+        Objects.equals(this.atType, pizzaSpeziale.atType) &&
         super.equals(o);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(toppings, super.hashCode());
+    return Objects.hash(toppings, href, id, atSchemaLocation, atBaseType, atType, super.hashCode());
   }
 
   @Override
@@ -119,6 +209,11 @@ public class PizzaSpeziale extends Pizza {
     sb.append("class PizzaSpeziale {\n");
     sb.append("    ").append(toIndentedString(super.toString())).append("\n");
     sb.append("    toppings: ").append(toIndentedString(toppings)).append("\n");
+    sb.append("    href: ").append(toIndentedString(href)).append("\n");
+    sb.append("    id: ").append(toIndentedString(id)).append("\n");
+    sb.append("    atSchemaLocation: ").append(toIndentedString(atSchemaLocation)).append("\n");
+    sb.append("    atBaseType: ").append(toIndentedString(atBaseType)).append("\n");
+    sb.append("    atType: ").append(toIndentedString(atType)).append("\n");
     sb.append("}");
     return sb.toString();
   }
