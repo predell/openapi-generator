@@ -8,7 +8,7 @@
     <!-- lookup parent from repository -->
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.openapitools</groupId>
+    <groupId>com.predell.openapitools</groupId>
     <artifactId>openapi-generator-project</artifactId>
     <packaging>pom</packaging>
     <name>openapi-generator-project</name>
@@ -66,11 +66,11 @@
     <distributionManagement>
         <snapshotRepository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://repository.predell.priv/repository/maven-snapshots/</url>
         </snapshotRepository>
         <repository>
             <id>ossrh</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+            <url>https://repository.predell.priv/repository/maven-releases/</url>
         </repository>
     </distributionManagement>
     <licenses>
@@ -230,7 +230,7 @@
                             <mode>development</mode>
                             <url>${project.url}</url>
                             <implementation-version>${project.version}</implementation-version>
-                            <package>org.openapitools</package>
+                            <package>com.predell.openapitools</package>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -408,27 +408,13 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
                         <version>1.6.8</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
-                            <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                            <nexusUrl>https://repository.predell.priv/</nexusUrl>
                             <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
@@ -1456,7 +1442,7 @@
     <repositories>
         <repository>
             <id>sonatype-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://repository.predell.priv/repository/maven-snapshots</url>
             <snapshots>
                 <enabled>true</enabled>
             </snapshots>
