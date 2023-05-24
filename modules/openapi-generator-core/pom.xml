@@ -4,7 +4,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <parent>
     <artifactId>openapi-generator-project</artifactId>
-    <groupId>org.openapitools</groupId>
+    <groupId>com.predell.openapitools</groupId>
     <!-- RELEASE_VERSION -->
     <version>7.6.0</version>
     <!-- /RELEASE_VERSION -->

@@ -42,7 +42,7 @@ open class OpenApiGeneratorMetaExtension(project: Project) {
 
     init {
         generatorName.set("default")
-        packageName.set("org.openapitools.codegen")
+        packageName.set("com.predell.openapitools.codegen")
         outputFolder.set("")
     }
 }
