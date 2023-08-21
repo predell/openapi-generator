@@ -257,6 +257,7 @@ import com.squareup.moshi.adapter
                 }}{{#gson}}Serializer.gson.fromJson(bodyContent, (object: TypeToken<T>(){}).getType()){{/gson}}{{!
                 }}{{#jackson}}Serializer.jacksonObjectMapper.readValue(bodyContent, object: TypeReference<T>() {}){{/jackson}}{{!
                 }}{{#kotlinx_serialization}}Serializer.kotlinxSerializationJson.decodeFromString<T>(bodyContent){{/kotlinx_serialization}}
+            mediaType == "text/plain" -> bodyContent as T
             else ->  throw UnsupportedOperationException("responseBody currently only supports JSON body.")
         }
     }
