@@ -487,35 +487,38 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
                 final boolean selfIsInterface = Objects.equals(cm.getVendorExtensions().get("x-kotlin-model-type"),
                         KotlinModelType.INTERFACE.literal);
 
-                if (!selfIsInterface && parentModel != null) {
-                    // TODO: handle other interfaces as well, not only parent? need test case
-                    Set<String> alreadyDefined =
-                            cm.getAllVars().stream().map(CodegenProperty::getName).collect(Collectors.toSet());
-                    for (CodegenProperty prop : parentModel.getVars()) {
-                        if (!alreadyDefined.contains(prop.name)) {
-                            cm.allVars.add(prop.clone());
-                            alreadyDefined.add(prop.name);
-                        }
-                    }
-                }
-            }
-        }
-
-        // mark all override variables as such
-        for (ModelsMap map : objs.values()) {
-            for (ModelMap mo : map.getModels()) {
-                CodegenModel cm = mo.getModel();
-                Set<String> inheritedPropertyNames = new TreeSet<>();
-
                 Collection<CodegenModel> interfaceModels =
                         ((Map<CodegenModel, CodegenModel>) cm.getVendorExtensions().getOrDefault("x-implements",
                                 Collections.emptyMap())).values();
+                if (!selfIsInterface) {
+                    Set<String> alreadyDefined =
+                            cm.getAllVars().stream().map(CodegenProperty::getName).collect(Collectors.toSet());
+                    if(parentModel != null) {
+                        for (CodegenProperty prop : parentModel.getVars()) {
+                            if (!alreadyDefined.contains(prop.name)) {
+                                cm.allVars.add(prop.clone());
+                                alreadyDefined.add(prop.name);
+                            }
+                        }
+                    }
+                    for (CodegenModel interfaceModel: interfaceModels ) {
+                        interfaceModel.getAllVars().forEach(prop -> {
+                            if (!alreadyDefined.contains(prop.name)) {
+                                cm.allVars.add(prop.clone());
+                                alreadyDefined.add(prop.name);
+                            }
+                        });
+                    }
+                }
+
+                Set<String> inheritedPropertyNames = new TreeSet<>();
+
+
                 for (CodegenModel interfaceModel : interfaceModels) {
                     interfaceModel.vars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
                     interfaceModel.allVars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
                 }
 
-                final CodegenModel parentModel = cm.getParentModel();
                 if (parentModel != null) {
                     parentModel.vars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
                     parentModel.allVars.stream().map(it -> it.name).forEach(inheritedPropertyNames::add);
