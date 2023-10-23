@@ -268,7 +268,7 @@ import com.squareup.moshi.adapter
                 }}{{#kotlinx_serialization}}Serializer.kotlinxSerializationJson.decodeFromString<T>(bodyContent){{/kotlinx_serialization}}
             }
             mediaType == OctetMediaType -> body.bytes() as? T
-            mediaType == "text/plain" -> bodyContent as T
+            mediaType == "text/plain" -> body as? T
             else ->  throw UnsupportedOperationException("responseBody currently only supports JSON body.")
         }
     }
