@@ -1303,8 +1303,8 @@ public class ModelUtils {
 
         Map<String, List<Entry<String, Schema>>> groupedByParent = allSchemas.entrySet().stream()
                 .filter(entry -> isComposedSchema(entry.getValue()))
-                .filter(entry -> getParentName((Schema) entry.getValue(), allSchemas) != null)
-                .collect(Collectors.groupingBy(entry -> getParentName((Schema) entry.getValue(), allSchemas)));
+                .filter(entry -> getParentName(entry.getValue(), allSchemas) != null)
+                .collect(Collectors.groupingBy(entry -> getParentName(entry.getValue(), allSchemas)));
 
         return groupedByParent.entrySet().stream()
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue().stream().map(e -> e.getKey()).collect(Collectors.toList())));
@@ -1359,12 +1359,14 @@ public class ModelUtils {
      */
     public static String getParentName(Schema composedSchema, Map<String, Schema> allSchemas) {
         List<Schema> interfaces = getInterfaces(composedSchema);
-        int nullSchemaChildrenCount = 0;
-        boolean hasAmbiguousParents = false;
-        List<String> refedWithoutDiscriminator = new ArrayList<>();
+
+        if(composedSchema.getAllOf() != null && composedSchema.getAllOf().size() == 1) {
+            Schema<?> parentSchema = ((Schema<?>) composedSchema.getAllOf().get(0));
+            return getSimpleRef(parentSchema.get$ref());
+        }
 
         if (interfaces != null && !interfaces.isEmpty()) {
-            for (Schema schema : interfaces) {
+            for (Schema<?> schema : interfaces) {
                 // get the actual schema
                 if (StringUtils.isNotEmpty(schema.get$ref())) {
                     String parentName = getSimpleRef(schema.get$ref());
@@ -1375,26 +1377,8 @@ public class ModelUtils {
                     } else if (hasOrInheritsDiscriminator(s, allSchemas, new ArrayList<Schema>())) {
                         // discriminator.propertyName is used or x-parent is used
                         return parentName;
-                    } else {
-                        // not a parent since discriminator.propertyName or x-parent is not set
-                        hasAmbiguousParents = true;
-                        refedWithoutDiscriminator.add(parentName);
-                    }
-                } else {
-                    // not a ref, doing nothing, except counting the number of times the 'null' type
-                    // is listed as composed element.
-                    if (ModelUtils.isNullType(schema)) {
-                        // If there are two interfaces, and one of them is the 'null' type,
-                        // then the parent is obvious and there is no need to warn about specifying
-                        // a determinator.
-                        nullSchemaChildrenCount++;
                     }
                 }
-            }
-            if (refedWithoutDiscriminator.size() == 1 && nullSchemaChildrenCount == 1) {
-                // One schema is a $ref and the other is the 'null' type, so the parent is obvious.
-                // In this particular case there is no need to specify a discriminator.
-                hasAmbiguousParents = false;
             }
         }
 
@@ -1411,7 +1395,17 @@ public class ModelUtils {
      */
     public static List<String> getAllParentsName(Schema composedSchema, Map<String, Schema> allSchemas, boolean includeAncestors) {
         List<Schema> interfaces = getInterfaces(composedSchema);
-        List<String> names = new ArrayList<String>();
+        List<String> names = new ArrayList<>();
+
+        if(composedSchema.getAllOf() != null && composedSchema.getAllOf().size() == 1) {
+            return (List<String>) composedSchema.getAllOf()
+                    .stream()
+                    .map(s -> {
+                        Schema<?> parentSchema = ((Schema<?>) composedSchema.getAllOf().get(0));
+                        return getSimpleRef(parentSchema.get$ref());
+                    })
+                    .collect(Collectors.toList());
+        }
 
         if (interfaces != null && !interfaces.isEmpty()) {
             for (Schema schema : interfaces) {
@@ -1422,7 +1416,7 @@ public class ModelUtils {
                     if (s == null) {
                         LOGGER.error("Failed to obtain schema from {}", parentName);
                         names.add("UNKNOWN_PARENT_NAME");
-                    } else if (hasOrInheritsDiscriminator(s, allSchemas, new ArrayList<Schema>())) {
+                    } else if (hasOrInheritsDiscriminator(s, allSchemas, new ArrayList<>())) {
                         // discriminator.propertyName is used or x-parent is used
                         names.add(parentName);
                         if (includeAncestors && isComposedSchema(s)) {

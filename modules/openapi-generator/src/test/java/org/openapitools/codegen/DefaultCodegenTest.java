@@ -1668,9 +1668,9 @@ public class DefaultCodegenTest {
         Schema schema = openAPI.getComponents().getSchemas().get("NewMessageEventCoreNoOwnProps");
         codegen.setOpenAPI(openAPI);
         CodegenModel model = codegen.fromModel("NewMessageEventCoreNoOwnProps", schema);
-        Assert.assertEquals(getNames(model.getVars()), Arrays.asList("id", "message"));
-        Assert.assertNull(model.parent);
-        Assert.assertNull(model.allParents);
+        Assert.assertTrue(model.getVars().isEmpty());
+        Assert.assertEquals("MessageEventCore", model.parent);
+        Assert.assertNotNull(model.allParents);
     }
 
     @Test
