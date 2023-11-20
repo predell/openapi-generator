@@ -25,7 +25,6 @@ import io.swagger.v3.oas.models.media.Discriminator;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
-import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
 import org.openapitools.codegen.CodegenModel;
 import org.openapitools.codegen.CodegenProperty;
@@ -34,6 +33,8 @@ import org.openapitools.codegen.TestUtils;
 import org.openapitools.codegen.languages.JavaClientCodegen;
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import java.util.Set;
 
 public class JavaInheritanceTest {
 
@@ -57,8 +58,8 @@ public class JavaInheritanceTest {
 
         Assert.assertEquals(cm.name, "sample");
         Assert.assertEquals(cm.classname, "Sample");
-        Assert.assertNull(cm.parent);
-        Assert.assertEquals(cm.imports, Collections.emptySet());
+        Assert.assertEquals("Base", cm.parent);
+        Assert.assertEquals(cm.imports, Set.of("Base"));
     }
 
     @Test(description = "convert a composed model with discriminator")

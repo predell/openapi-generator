@@ -445,6 +445,18 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
                 for (CodegenModel interfaceModel : getModels(codegenModel, CombinationType.ONE_OF)) {
                     markAsExtends.accept(interfaceModel, codegenModel);
                 }
+                if(!codegenModel.oneOf.isEmpty()) {
+                    if(codegenModel.discriminator == null) {
+                        codegenModel.vars =  new ArrayList<>();
+                        codegenModel.allVars =  new ArrayList<>();
+                    } else {
+                        var discriminatorVars = codegenModel.allVars.stream()
+                                .filter(v -> codegenModel.discriminator.getPropertyName().equals(v.name))
+                                .collect(Collectors.toList());
+                        codegenModel.vars =  discriminatorVars;
+                        codegenModel.allVars =  discriminatorVars;
+                    }
+                }
             }
         }
 
@@ -494,6 +506,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
                     Set<String> alreadyDefined =
                             cm.getAllVars().stream().map(CodegenProperty::getName).collect(Collectors.toSet());
                     if(parentModel != null) {
+                        for (CodegenProperty prop : cm.getVars()) {
+                            if (!alreadyDefined.contains(prop.name)) {
+                                cm.allVars.add(prop.clone());
+                                alreadyDefined.add(prop.name);
+                            }
+                        }
                         for (CodegenProperty prop : parentModel.getVars()) {
                             if (!alreadyDefined.contains(prop.name)) {
                                 cm.allVars.add(prop.clone());

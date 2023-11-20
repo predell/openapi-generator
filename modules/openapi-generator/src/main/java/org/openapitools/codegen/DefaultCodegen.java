@@ -2764,7 +2764,7 @@ public class DefaultCodegen implements CodegenConfig {
 
         // TODO revise the logic below to set discriminator, xml attributes
         if (supportsInheritance || supportsMixins) {
-            m.allVars = m.allVars == null ? new ArrayList<>() : m.allVars;
+            m.allVars = new ArrayList<>();
             if (composed.getAllOf() != null) {
                 int modelImplCnt = 0; // only one inline object allowed in a ComposedModel
                 int modelDiscriminators = 0; // only one discriminator allowed in a ComposedModel
@@ -3738,6 +3738,17 @@ public class DefaultCodegen implements CodegenConfig {
         if (!visitedSchemas.add(schema)) {
             return;
         }
+        if (StringUtils.isNotBlank(schema.get$ref())) {
+            Schema interfaceSchema = ModelUtils.getReferencedSchema(this.openAPI, schema);
+            addProperties(properties, required, interfaceSchema, visitedSchemas);
+            return;
+        }
+        if (schema.getProperties() != null) {
+            properties.putAll(schema.getProperties());
+        }
+        if (schema.getRequired() != null) {
+            required.addAll(schema.getRequired());
+        }
         if (ModelUtils.isComposedSchema(schema)) {
             // fix issue #16797 and #15796, constructor fail by missing parent required params
             if (schema.getProperties() != null && !schema.getProperties().isEmpty()) {
@@ -3748,10 +3759,6 @@ public class DefaultCodegen implements CodegenConfig {
                 for (Object component : schema.getAllOf()) {
                     addProperties(properties, required, (Schema) component, visitedSchemas);
                 }
-            }
-
-            if (schema.getRequired() != null) {
-                required.addAll(schema.getRequired());
             }
 
             if (schema.getOneOf() != null) {
@@ -3772,18 +3779,6 @@ public class DefaultCodegen implements CodegenConfig {
                 }
             }
             return;
-        }
-
-        if (StringUtils.isNotBlank(schema.get$ref())) {
-            Schema interfaceSchema = ModelUtils.getReferencedSchema(this.openAPI, schema);
-            addProperties(properties, required, interfaceSchema, visitedSchemas);
-            return;
-        }
-        if (schema.getProperties() != null) {
-            properties.putAll(schema.getProperties());
-        }
-        if (schema.getRequired() != null) {
-            required.addAll(schema.getRequired());
         }
     }
 
@@ -5957,8 +5952,6 @@ public class DefaultCodegen implements CodegenConfig {
             m.allMandatory = m.mandatory = mandatory;
         } else {
             m.emptyVars = true;
-            m.hasVars = false;
-            m.hasEnums = false;
         }
 
         if (allProperties != null) {

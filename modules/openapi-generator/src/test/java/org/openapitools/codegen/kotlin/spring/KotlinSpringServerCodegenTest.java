@@ -571,15 +571,15 @@ public class KotlinSpringServerCodegenTest {
         );
         assertFileContains(
             Paths.get(outputPath + "/src/main/kotlin/org/openapitools/model/Animal.kt"),
-            "@get:Schema(example = \"null\", description = \"\")"
+            "@get:Schema(description = \"\")"
         );
         assertFileNotContains(
             Paths.get(outputPath + "/src/main/kotlin/org/openapitools/model/Animal.kt"),
-            "@Schema(example = \"null\", requiredMode = Schema.RequiredMode.REQUIRED, description = \"\")"
+            "@Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = \"\")"
         );
         assertFileContains(
             Paths.get(outputPath + "/src/main/kotlin/org/openapitools/model/Animal.kt"),
-            "@get:Schema(example = \"null\", requiredMode = Schema.RequiredMode.REQUIRED, description = \"\")"
+            "@get:Schema(requiredMode = Schema.RequiredMode.REQUIRED, description = \"\")"
         );
     }
 
@@ -605,15 +605,15 @@ public class KotlinSpringServerCodegenTest {
         );
         assertFileContains(
             Paths.get(outputPath + "/src/main/kotlin/org/openapitools/model/Animal.kt"),
-            "@get:ApiModelProperty(example = \"null\", value = \"\")"
+            "@get:ApiModelProperty(value = \"\")"
         );
         assertFileNotContains(
             Paths.get(outputPath + "/src/main/kotlin/org/openapitools/model/Animal.kt"),
-            "@ApiModelProperty(example = \"null\", required = true, value = \"\")"
+            "@ApiModelProperty(required = true, value = \"\")"
         );
         assertFileContains(
             Paths.get(outputPath + "/src/main/kotlin/org/openapitools/model/Animal.kt"),
-            "@get:ApiModelProperty(example = \"null\", required = true, value = \"\")"
+            "@get:ApiModelProperty(required = true, value = \"\")"
         );
     }
 
