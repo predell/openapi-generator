@@ -483,7 +483,6 @@ public class DefaultGenerator implements Generator {
                         Path path = java.nio.file.Paths.get(filename);
                         this.templateProcessor.skip(path, "Skipped prior to model processing due to schema mapping.");
                     }
-                    continue;
                 }
 
                 // don't generate models that are not used as object (e.g. form parameters)
