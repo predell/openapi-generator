@@ -485,7 +485,7 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
                 CodegenModel cm = mo.getModel();
 
                 KotlinModelType kotlinType;
-                if (cm.getDiscriminator() != null || cm.vendorExtensions.get("x-has-implementors") == Boolean.TRUE) {
+                if (cm.getDiscriminator() != null || cm.vendorExtensions.get("x-has-implementors") == Boolean.TRUE && !cm.hasChildren) {
                     kotlinType = KotlinModelType.INTERFACE;
                 } else if (cm.hasChildren) {
                     kotlinType = KotlinModelType.OPEN_CLASS;
