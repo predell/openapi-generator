@@ -1356,7 +1356,8 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
         } else if (returnType.startsWith("kotlin.collections.MutableMap")) {
             int end = returnType.lastIndexOf(">");
             if (end > 0) {
-                dataTypeAssigner.setReturnType(returnType.substring("kotlin.collections.MutableMap<".length(), end).split(",")[1].trim());
+                var mapTypes = returnType.substring("kotlin.collections.MutableMap<".length(), end);
+                dataTypeAssigner.setReturnType(mapTypes.substring(mapTypes.indexOf(",") +1).trim());
                 dataTypeAssigner.setReturnContainer("Map");
             }
         }
