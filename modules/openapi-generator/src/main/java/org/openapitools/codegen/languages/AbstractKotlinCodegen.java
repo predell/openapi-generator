@@ -464,18 +464,12 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
                 }
                 for (CodegenModel interfaceModel : getModels(codegenModel, CombinationType.ONE_OF)) {
                     markAsExtends.accept(interfaceModel, codegenModel);
+                    codegenModel.vars = codegenModel.vars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
                 }
-                if(!codegenModel.oneOf.isEmpty()) {
-                    if(codegenModel.discriminator == null) {
-                        codegenModel.vars =  new ArrayList<>();
-                        codegenModel.allVars =  new ArrayList<>();
-                    } else {
-                        var discriminatorVars = codegenModel.allVars.stream()
-                                .filter(v -> codegenModel.discriminator.getPropertyName().equals(v.name))
-                                .collect(Collectors.toList());
-                        codegenModel.vars =  discriminatorVars;
-                        codegenModel.allVars =  discriminatorVars;
-                    }
+                if (!codegenModel.oneOf.isEmpty()) {
+                    codegenModel.allVars = new ArrayList<>();
+                    codegenModel.allVars.addAll(codegenModel.vars);
+                    codegenModel.allVars.addAll(codegenModel.parentVars);
                 }
             }
         }
