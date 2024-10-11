@@ -21,9 +21,9 @@
 {{/allVars}}
 ){{/vendorExtensions.x-kotlin-interface}}{{#parent}} : {{{parent}}}{{^isMap}}{{^isArray}}{{>dataClassParentArgs}}{{/isArray}}{{/isMap}}{{#isMap}}(){{/isMap}}{{#isArray}}(){{/isArray}}{{/parent}}{{#vendorExtensions.x-kotlin-interfaces-list}}{{#parent}},{{/parent}}{{^parent}} : {{/parent}}{{vendorExtensions.x-kotlin-interfaces-list}}{{/vendorExtensions.x-kotlin-interfaces-list}}{{#vendorExtensions.x-has-data-class-body}} {
 {{/vendorExtensions.x-has-data-class-body}}
-{{#vendorExtensions.x-kotlin-interface}}{{^oneOf}}{{#vars}}{{#required}}
+{{#vendorExtensions.x-kotlin-interface}}{{#vars}}{{#required}}
     {{>interfaceReqVar}}{{/required}}{{^required}}
-    {{>interfaceOptVar}}{{/required}}{{/vars}}{{/oneOf}}{{/vendorExtensions.x-kotlin-interface}}
+    {{>interfaceOptVar}}{{/required}}{{/vars}}{{/vendorExtensions.x-kotlin-interface}}
 {{#hasEnums}}
     {{#vars}}
         {{#isEnum}}
