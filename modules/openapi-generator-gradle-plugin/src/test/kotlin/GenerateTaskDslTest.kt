@@ -321,9 +321,9 @@ class GenerateTaskDslTest : TestBase() {
         assertTrue(result.output.contains("Successfully generated code to"), "User friendly generate notice is missing.")
 
         listOf(
-                "build/java/src/main/java/org/openapitools/example/model/ModelPrefPetSuff.java",
-                "build/java/src/main/java/org/openapitools/example/model/ModelPrefErrorSuff.java",
-                "build/java/src/main/java/org/openapitools/example/api/PetsApiClassSuffix.java"
+                "build/java/src/main/java/org/openapitools/example/model/ModelPref_Pet_Suff.java",
+                "build/java/src/main/java/org/openapitools/example/model/ModelPref_Error_Suff.java",
+                "build/java/src/main/java/org/openapitools/example/api/_Pets_ApiClassSuffix.java"
         ).map {
             val f = File(temp, it)
             assertTrue(f.exists() && f.isFile, "An expected file was not generated when invoking the generation. - $f")

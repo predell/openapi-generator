@@ -464,9 +464,9 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
                 }
                 for (CodegenModel interfaceModel : getModels(codegenModel, CombinationType.ONE_OF)) {
                     markAsExtends.accept(interfaceModel, codegenModel);
-                    codegenModel.vars = codegenModel.vars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
-                    codegenModel.optionalVars = codegenModel.optionalVars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
-                    codegenModel.requiredVars = codegenModel.requiredVars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
+                    codegenModel.vars = codegenModel.vars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && othervar.required == var.required && othervar.complexType.equals(var.complexType) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
+                    codegenModel.optionalVars = codegenModel.optionalVars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && othervar.required == var.required && othervar.complexType.equals(var.complexType) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
+                    codegenModel.requiredVars = codegenModel.requiredVars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && othervar.required == var.required && othervar.complexType.equals(var.complexType) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
                 }
                 if (!codegenModel.oneOf.isEmpty()) {
                     codegenModel.allVars = new ArrayList<>();
