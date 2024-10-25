@@ -56,6 +56,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -464,9 +465,18 @@ public abstract class AbstractKotlinCodegen extends DefaultCodegen implements Co
                 }
                 for (CodegenModel interfaceModel : getModels(codegenModel, CombinationType.ONE_OF)) {
                     markAsExtends.accept(interfaceModel, codegenModel);
-                    codegenModel.vars = codegenModel.vars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && othervar.required == var.required && ((othervar.complexType == null && var.complexType == null) || (othervar.complexType != null && othervar.complexType.equals(var.complexType))) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
-                    codegenModel.optionalVars = codegenModel.optionalVars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && othervar.required == var.required && ((othervar.complexType == null && var.complexType == null) || (othervar.complexType != null && othervar.complexType.equals(var.complexType))) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
-                    codegenModel.requiredVars = codegenModel.requiredVars.stream().filter(var -> interfaceModel.allVars.stream().anyMatch(othervar -> othervar.name.equals(var.name) && othervar.required == var.required && ((othervar.complexType == null && var.complexType == null) || (othervar.complexType != null && othervar.complexType.equals(var.complexType))) && codegenModel.discriminator != null && !othervar.name.equals(codegenModel.discriminator.getPropertyName()))).collect(Collectors.toList());
+
+                    Predicate <CodegenProperty> isInterfaceProperty = var -> interfaceModel.allVars.stream().anyMatch(otherVar ->
+                            var.name.equals(otherVar.name)
+                            && var.required == otherVar.required
+                            && ((otherVar.complexType == null && var.complexType == null) || (otherVar.complexType != null && otherVar.complexType.equals(var.complexType)))
+                            && (codegenModel.discriminator != null && !otherVar.name.equals(codegenModel.discriminator.getPropertyName()))
+                            && !var.isEnum
+                    );
+
+                    codegenModel.vars = codegenModel.vars.stream().filter(isInterfaceProperty).collect(Collectors.toList());
+                    codegenModel.optionalVars = codegenModel.optionalVars.stream().filter(isInterfaceProperty).collect(Collectors.toList());
+                    codegenModel.requiredVars = codegenModel.requiredVars.stream().filter(isInterfaceProperty).collect(Collectors.toList());
                 }
                 if (!codegenModel.oneOf.isEmpty()) {
                     codegenModel.allVars = new ArrayList<>();
