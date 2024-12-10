@@ -180,7 +180,7 @@ public class KotlinSpringServerCodegen extends AbstractKotlinCodegen
         typeMapping.put("list", "kotlin.collections.List");
 
         // use resource for file handling
-        typeMapping.put("file", "org.springframework.core.io.Resource");
+        typeMapping.put("file", "org.springframework.web.multipart.MultipartFile");
 
         addOption(TITLE, "server title name or client service name", title);
         addOption(CONFIG_PACKAGE, "configuration package for generated code", this.getConfigPackage());
